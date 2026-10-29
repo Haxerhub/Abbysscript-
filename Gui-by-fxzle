@@ -1,0 +1,236 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
+
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+local CONFIG = {
+    DiscordLink = "https://discord.gg/BukbGDTSm",
+    LoadDelay = 10,
+    Theme = {
+        Background = Color3.fromRGB(0, 0, 0),
+        Accent = Color3.fromRGB(0, 170, 255),
+        Success = Color3.fromRGB(50, 200, 50),
+        Danger = Color3.fromRGB(150, 30, 30),
+        Secondary = Color3.fromRGB(25, 25, 25),
+        InputBg = Color3.fromRGB(20, 20, 20),
+        Text = Color3.fromRGB(255, 255, 255)
+    }
+}
+
+local function CopyToClipboard(text)
+    pcall(function()
+        if setclipboard then
+            setclipboard(text)
+        elseif toclipboard then
+            toclipboard(text)
+        end
+    end)
+end
+
+CopyToClipboard(CONFIG.DiscordLink)
+pcall(function()
+    StarterGui:SetCore("SendNotification", {
+        Title = "Fxzle Menu Loaded",
+        Text = CONFIG.DiscordLink .. " (Copied)",
+        Duration = 10,
+    })
+end)
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FxzleMenuGui"
+ScreenGui.Parent = PlayerGui
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Enabled = false
+
+local ToggleBtn = Instance.new("TextButton", ScreenGui)
+ToggleBtn.Name = "ToggleMenu"
+ToggleBtn.BackgroundColor3 = CONFIG.Theme.Accent
+ToggleBtn.Position = UDim2.new(0.05, 0, 0.4, 0)
+ToggleBtn.Size = UDim2.new(0, 45, 0, 45)
+ToggleBtn.Text = "-"
+ToggleBtn.TextColor3 = CONFIG.Theme.Text
+ToggleBtn.TextSize = 22
+ToggleBtn.Font = Enum.Font.SourceSansBold
+ToggleBtn.Active = true
+ToggleBtn.Draggable = true
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 8)
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Name = "MainFrame"
+MainFrame.BackgroundColor3 = CONFIG.Theme.Background
+MainFrame.Position = UDim2.new(0.05, 0, 0.48, 0)
+MainFrame.Size = UDim2.new(0, 220, 0, 300)
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+
+local UIStroke = Instance.new("UIStroke", MainFrame)
+UIStroke.Color = Color3.fromRGB(40, 40, 40)
+UIStroke.Thickness = 2
+
+local Title = Instance.new("TextLabel", MainFrame)
+Title.BackgroundTransparency = 1
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Text = "Menú de Hacks\n<font size='10' color='rgb(150,150,150)'>by fxzle</font>"
+Title.RichText = true
+Title.TextColor3 = CONFIG.Theme.Text
+Title.TextSize = 15
+Title.Font = Enum.Font.SourceSansBold
+
+local function CreateButton(parent, pos, size, text, color)
+    local btn = Instance.new("TextButton", parent)
+    btn.BackgroundColor3 = color or CONFIG.Theme.Secondary
+    btn.Position = pos
+    btn.Size = size
+    btn.Text = text
+    btn.TextColor3 = CONFIG.Theme.Text
+    btn.TextSize = 14
+    btn.Font = Enum.Font.SourceSansBold
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    return btn
+end
+
+local function CreateTextBox(parent, pos, size, placeholder, defaultText)
+    local box = Instance.new("TextBox", parent)
+    box.BackgroundColor3 = CONFIG.Theme.InputBg
+    box.Position = pos
+    box.Size = size
+    box.PlaceholderText = placeholder
+    box.Text = defaultText
+    box.TextColor3 = CONFIG.Theme.Text
+    box.TextSize = 14
+    box.Font = Enum.Font.SourceSans
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 6)
+    return box
+end
+
+local MinusBtn = CreateButton(MainFrame, UDim2.new(0.08, 0, 0.14, 0), UDim2.new(0, 30, 0, 25), "-")
+local SpeedInput = CreateTextBox(MainFrame, UDim2.new(0.23, 0, 0.14, 0), UDim2.new(0, 110, 0, 25), "Speed", "16")
+local PlusBtn = CreateButton(MainFrame, UDim2.new(0.74, 0, 0.14, 0), UDim2.new(0, 30, 0, 25), "+")
+local ApplySpeedBtn = CreateButton(MainFrame, UDim2.new(0.08, 0, 0.27, 0), UDim2.new(0, 185, 0, 25), "Aplicar Velocidad", CONFIG.Theme.Accent)
+
+local JumpInput = CreateTextBox(MainFrame, UDim2.new(0.08, 0, 0.40, 0), UDim2.new(0, 80, 0, 25), "Jump", "50")
+local JumpToggleBtn = CreateButton(MainFrame, UDim2.new(0.45, 0, 0.40, 0), UDim2.new(0, 103, 0, 25), "Jump: OFF", CONFIG.Theme.Danger)
+
+local InfJumpBtn = CreateButton(MainFrame, UDim2.new(0.08, 0, 0.53, 0), UDim2.new(0, 185, 0, 25), "Inf Jump: OFF", CONFIG.Theme.Danger)
+local FlyBtn = CreateButton(MainFrame, UDim2.new(0.08, 0, 0.66, 0), UDim2.new(0, 185, 0, 25), "Fly: OFF", CONFIG.Theme.Danger)
+local NoclipBtn = CreateButton(MainFrame, UDim2.new(0.08, 0, 0.79, 0), UDim2.new(0, 185, 0, 25), "Noclip: OFF", CONFIG.Theme.Danger)
+local DiscordBtn = CreateButton(MainFrame, UDim2.new(0.08, 0, 0.91, 0), UDim2.new(0, 185, 0, 23), "Copiar Discord", Color3.fromRGB(88, 101, 242))
+
+local isMenuVisible = true
+ToggleBtn.MouseButton1Click:Connect(function()
+    isMenuVisible = not isMenuVisible
+    MainFrame.Visible = isMenuVisible
+    ToggleBtn.Text = isMenuVisible and "-" or "+"
+    ToggleBtn.BackgroundColor3 = isMenuVisible and CONFIG.Theme.Accent or CONFIG.Theme.Success
+end)
+
+local function UpdateWalkSpeed()
+    local val = tonumber(SpeedInput.Text)
+    local char = Player.Character
+    if val and char and char:FindFirstChildOfClass("Humanoid") then
+        char:FindFirstChildOfClass("Humanoid").WalkSpeed = val
+    end
+end
+
+ApplySpeedBtn.MouseButton1Click:Connect(UpdateWalkSpeed)
+SpeedInput.FocusLost:Connect(function(enter) if enter then UpdateWalkSpeed() end end)
+PlusBtn.MouseButton1Click:Connect(function()
+    SpeedInput.Text = tostring((tonumber(SpeedInput.Text) or 16) + 10)
+    UpdateWalkSpeed()
+end)
+MinusBtn.MouseButton1Click:Connect(function()
+    SpeedInput.Text = tostring(math.max(0, (tonumber(SpeedInput.Text) or 16) - 10))
+    UpdateWalkSpeed()
+end)
+
+local isJumpEnabled = false
+JumpToggleBtn.MouseButton1Click:Connect(function()
+    isJumpEnabled = not isJumpEnabled
+    JumpToggleBtn.Text = isJumpEnabled and "Jump: ON" or "Jump: OFF"
+    JumpToggleBtn.BackgroundColor3 = isJumpEnabled and CONFIG.Theme.Success or CONFIG.Theme.Danger
+    local hum = Player.Character and Player.Character:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.UseJumpPower = true
+        hum.JumpPower = isJumpEnabled and (tonumber(JumpInput.Text) or 50) or 50
+    end
+end)
+
+local isInfJumpEnabled = false
+InfJumpBtn.MouseButton1Click:Connect(function()
+    isInfJumpEnabled = not isInfJumpEnabled
+    InfJumpBtn.Text = isInfJumpEnabled and "Inf Jump: ON" or "Inf Jump: OFF"
+    InfJumpBtn.BackgroundColor3 = isInfJumpEnabled and CONFIG.Theme.Success or CONFIG.Theme.Danger
+end)
+
+UserInputService.JumpRequest:Connect(function()
+    if isInfJumpEnabled and Player.Character then
+        local hum = Player.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+    end
+end)
+
+local isFlying, bodyVel, bodyGyro = false, nil, nil
+FlyBtn.MouseButton1Click:Connect(function()
+    isFlying = not isFlying
+    FlyBtn.Text = isFlying and "Fly: ON" or "Fly: OFF"
+    FlyBtn.BackgroundColor3 = isFlying and CONFIG.Theme.Success or CONFIG.Theme.Danger
+    local char = Player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if isFlying and root and hum then
+        bodyVel = Instance.new("BodyVelocity", root)
+        bodyVel.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bodyGyro = Instance.new("BodyGyro", root)
+        bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+        task.spawn(function()
+            while isFlying and char and root.Parent do
+                local cam = workspace.CurrentCamera
+                local move = hum.MoveDirection
+                if move.Magnitude > 0 then
+                    bodyVel.Velocity = (cam.CFrame.LookVector * (move.Z * 50)) + (cam.CFrame.RightVector * (move.X * 50)) + Vector3.new(0, move.Y * 50, 0)
+                else
+                    bodyVel.Velocity = Vector3.new(0, 0.1, 0)
+                end
+                bodyGyro.CFrame = cam.CFrame
+                task.wait()
+            end
+            if bodyVel then bodyVel:Destroy() end
+            if bodyGyro then bodyGyro:Destroy() end
+        end)
+    else
+        if bodyVel then bodyVel:Destroy() end
+        if bodyGyro then bodyGyro:Destroy() end
+    end
+end)
+
+local isNoclipEnabled = false
+NoclipBtn.MouseButton1Click:Connect(function()
+    isNoclipEnabled = not isNoclipEnabled
+    NoclipBtn.Text = isNoclipEnabled and "Noclip: ON" or "Noclip: OFF"
+    NoclipBtn.BackgroundColor3 = isNoclipEnabled and CONFIG.Theme.Success or CONFIG.Theme.Danger
+end)
+
+RunService.Stepped:Connect(function()
+    if isNoclipEnabled and Player.Character then
+        for _, part in ipairs(Player.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+DiscordBtn.MouseButton1Click:Connect(function()
+    CopyToClipboard(CONFIG.DiscordLink)
+    DiscordBtn.Text = "¡Copiado!"
+    task.wait(1.5)
+    DiscordBtn.Text = "Copiar Discord"
+end)
+
+task.delay(CONFIG.LoadDelay, function()
+    ScreenGui.Enabled = true
+end)
